@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revize | Zapojeno Elektro</title>
+
+  <link rel="stylesheet" href="style.card.css">
+
+  <link rel="icon" type="image/png" href="favicon.png">
+
+</head>
+
+<body>
+
+<header>
+  <a href="index.html">
+    <img src="logo.png" alt="Zapojeno Elektro logo" style="cursor: pointer;">
+</a>
+  <nav>
+    <a href="index.html">Domů</a>
+    <a href="index.html#kontakt">Kontakt</a>
+  </nav>
+</header>
+
+<div class="content-wrapper">
+
+  <section>
+    <h1><span>Zapojení</span> spotřebičů</h1>
+
+    <p>
+      Zajišťujeme odborné zapojení elektrických spotřebičů, jako jsou varné desky, trouby, bojlery a další zařízení.
+      Dbáme na správné zapojení pro bezpečný provoz a zachování záruky výrobce.
+    </p>
+
+    <a href="poptávka.html" class="btn">Nezávazná poptávka</a>
+  </section>
+
+</div>
+
+<footer>
+  © 2026 Zapojeno Elektro • Všechna práva vyhrazena
+</footer>
+
+<div id="lightbox" class="lightbox">
+  <span class="close">&times;</span>
+  <img class="lightbox-content" id="lightbox-img">
+</div>
+
+<script>
+  const images = document.querySelectorAll(".gallery img");
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightbox-img");
+  const closeBtn = document.querySelector(".close");
+
+  images.forEach(img => {
+    img.addEventListener("click", () => {
+      lightbox.style.display = "block";
+      lightboxImg.src = img.src;
+    });
+  });
+
+  closeBtn.addEventListener("click", () => {
+    lightbox.style.display = "none";
+  });
+
+  lightbox.addEventListener("click", (e) => {
+    if (e.target === lightbox) {
+      lightbox.style.display = "none";
+    }
+  });
+</script>
+
+</body>
+</html>
