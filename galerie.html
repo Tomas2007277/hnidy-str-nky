@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Galerie | Zapojeno Elektro</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #fff;
+            background: #111 url('./fotky/auto1.jpeg') center center / cover fixed no-repeat;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.72);
+            z-index: -1;
+        }
+
+        header {
+            background: #000;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo img {
+            height: 80px;
+            width: auto;
+            display: block;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 17px;
+            transition: color 0.2s ease;
+        }
+
+        nav a:hover {
+            color: #f5c400;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 35px 15px 15px;
+            color: #f5c400;
+            font-size: 36px;
+        }
+
+        .intro {
+            text-align: center;
+            margin: 0 15px 30px;
+            color: #eee;
+            font-size: 17px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .photo {
+            display: block;
+            width: 100%;
+            padding: 0;
+            border: 2px solid #f5c400;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #222;
+            cursor: pointer;
+            transition: transform 0.2s ease,
+                        border-color 0.2s ease;
+        }
+
+        .photo:hover {
+            transform: scale(1.025);
+            border-color: #fff;
+        }
+
+        .photo img {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+        }
+
+        .status {
+            text-align: center;
+            padding: 25px 15px;
+            color: #eee;
+            font-size: 17px;
+        }
+
+        footer {
+            margin-top: 30px;
+            padding: 22px 15px;
+            text-align: center;
+            background: #000;
+            color: #ccc;
+        }
+
+        /* Okno pro zvětšenou fotografii */
+
+        dialog {
+            width: min(95vw, 1200px);
+            max-width: 1200px;
+            max-height: 95vh;
+            padding: 0;
+            border: 1px solid #f5c400;
+            border-radius: 10px;
+            background: #080808;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .lightbox {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+
+        .lightbox img {
+            display: block;
+            max-width: 100%;
+            max-height: 82vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .lightbox-button {
+            position: absolute;
+            z-index: 2;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .lightbox-button:hover {
+            background: #f5c400;
+            color: #000;
+        }
+
+        .close-button {
+            top: 10px;
+            right: 10px;
+            font-size: 25px;
+        }
+
+        .prev-button {
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .next-button {
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .photo-counter {
+            text-align: center;
+            padding: 10px;
+            color: #eee;
+            font-size: 14px;
+        }
+
+        @media (max-width: 1000px) {
+            .gallery {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            header {
+                justify-content: center;
+            }
+
+            .logo img {
+                height: 60px;
+            }
+
+            nav {
+                justify-content: center;
+                gap: 15px;
+            }
+
+            nav a {
+                font-size: 15px;
+            }
+
+            h1 {
+                font-size: 29px;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                padding: 12px;
+            }
+
+            .lightbox-button {
+                padding: 8px 11px;
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <a class="logo" href="index.html" aria-label="Zapojeno Elektro – úvodní stránka">
+        <img src="./logo.png" alt="Zapojeno Elektro">
+    </a>
+
+    <nav>
+        <a href="index.html">Domů</a>
+        <a href="index.html#služby">Služby</a>
+        <a href="galerie.html">Galerie</a>
+        <a href="index.html#kontakt">Kontakt</a>
+    </nav>
+</header>
+
+<main>
+    <h1>Fotogalerie</h1>
+
+    <p class="intro">
+        Ukázky naší práce a realizovaných projektů.
+    </p>
+
+    <div class="gallery" id="gallery"></div>
+
+    <p class="status" id="status">Načítám fotografie…</p>
+</main>
+
+<dialog id="lightbox" aria-label="Zvětšená fotografie">
+    <div class="lightbox">
+        <button
+            type="button"
+            class="lightbox-button close-button"
+            id="closeButton"
+            aria-label="Zavřít fotografii"
+        >×</button>
+
+        <button
+            type="button"
+            class="lightbox-button prev-button"
+            id="prevButton"
+            aria-label="Předchozí fotografie"
+        >❮</button>
+
+        <img id="lightboxImage" src="" alt="Zvětšená fotografie">
+
+        <button
+            type="button"
+            class="lightbox-button next-button"
+            id="nextButton"
+            aria-label="Následující fotografie"
+        >❯</button>
+    </div>
+
+    <div class="photo-counter" id="photoCounter"></div>
+</dialog>
+
+<footer>
+    © <span id="year"></span> Zapojeno Elektro
+</footer>
+
+<script>
+    const gallery = document.getElementById("gallery");
+    const status = document.getElementById("status");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImage = document.getElementById("lightboxImage");
+    const photoCounter = document.getElementById("photoCounter");
+
+    const closeButton = document.getElementById("closeButton");
+    const prevButton = document.getElementById("prevButton");
+    const nextButton = document.getElementById("nextButton");
+
+    let photos = [];
+    let currentIndex = 0;
+
+    document.getElementById("year").textContent =
+        new Date().getFullYear();
+
+    // Načtení seznamu fotografií ze souboru fotky.json
+    async function loadPhotos() {
+        try {
+            const response = await fetch("./fotky.json");
+
+            if (!response.ok) {
+                throw new Error("Nepodařilo se načíst soubor fotky.json");
+            }
+
+            const filenames = await response.json();
+
+            if (!Array.isArray(filenames)) {
+                throw new Error("Soubor fotky.json nemá správný formát");
+            }
+
+            photos = filenames
+                .filter(name =>
+                    typeof name === "string" &&
+                    /\.(jpe?g|png|webp|avif|gif)$/i.test(name)
+                )
+                .map(name => "./fotky1/" + encodeURIComponent(name));
+
+            if (photos.length === 0) {
+                status.textContent = "Zatím zde nejsou žádné fotografie.";
+                return;
+            }
+
+            photos.forEach((src, index) => {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "photo";
+                button.setAttribute(
+                    "aria-label",
+                    "Zvětšit fotografii " + (index + 1)
+                );
+
+                const img = document.createElement("img");
+                img.src = src;
+                img.alt = "Fotografie " + (index + 1);
+                img.loading = "lazy";
+                img.decoding = "async";
+
+                img.addEventListener("error", () => {
+                    button.remove();
+                });
+
+                button.appendChild(img);
+
+                button.addEventListener("click", () => {
+                    openLightbox(index);
+                });
+
+                gallery.appendChild(button);
+            });
+
+            status.textContent = "Počet fotografií: " + photos.length;
+        } catch (error) {
+            console.error(error);
+            status.textContent =
+                "Fotografie se nepodařilo načíst. Zkontroluj soubor fotky.json a složku fotky1.";
+        }
+    }
+
+    function openLightbox(index) {
+        currentIndex = index;
+        updateLightbox();
+
+        if (typeof lightbox.showModal === "function") {
+            lightbox.showModal();
+        }
+    }
+
+    function updateLightbox() {
+        if (photos.length === 0) return;
+
+        lightboxImage.src = photos[currentIndex];
+        lightboxImage.alt =
+            "Fotografie " + (currentIndex + 1) + " z " + photos.length;
+
+        photoCounter.textContent =
+            (currentIndex + 1) + " / " + photos.length;
+    }
+
+    function showPrevious() {
+        if (photos.length === 0) return;
+
+        currentIndex =
+            (currentIndex - 1 + photos.length) % photos.length;
+
+        updateLightbox();
+    }
+
+    function showNext() {
+        if (photos.length === 0) return;
+
+        currentIndex = (currentIndex + 1) % photos.length;
+
+        updateLightbox();
+    }
+
+    closeButton.addEventListener("click", () => {
+        lightbox.close();
+    });
+
+    prevButton.addEventListener("click", showPrevious);
+    nextButton.addEventListener("click", showNext);
+
+    // Zavření kliknutím na tmavé pozadí okna
+    lightbox.addEventListener("click", event => {
+        if (event.target === lightbox) {
+            lightbox.close();
+        }
+    });
+
+    // Ovládání klávesnicí
+    document.addEventListener("keydown", event => {
+        if (!lightbox.open) return;
+
+        if (event.key === "ArrowLeft") {
+            showPrevious();
+        } else if (event.key === "ArrowRight") {
+            showNext();
+        }
+    });
+
+    loadPhotos();
+</script>
+
+</body>
+</html>
