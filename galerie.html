@@ -13,10 +13,10 @@
 
         body {
             margin: 0;
+            min-height: 100vh;
             font-family: Arial, sans-serif;
             color: #fff;
-            background: #111 url('./fotky/auto1.jpeg') center center / cover fixed no-repeat;
-            min-height: 100vh;
+            background: #111 url("./fotky/auto1.jpeg") center center / cover fixed no-repeat;
         }
 
         body::before {
@@ -62,15 +62,15 @@
         }
 
         h1 {
-            text-align: center;
             margin: 35px 15px 15px;
+            text-align: center;
             color: #f5c400;
             font-size: 36px;
         }
 
         .intro {
+            margin: 0 15px 25px;
             text-align: center;
-            margin: 0 15px 30px;
             color: #eee;
             font-size: 17px;
         }
@@ -88,13 +88,12 @@
             display: block;
             width: 100%;
             padding: 0;
+            overflow: hidden;
             border: 2px solid #f5c400;
             border-radius: 8px;
-            overflow: hidden;
             background: #222;
             cursor: pointer;
-            transition: transform 0.2s ease,
-                        border-color 0.2s ease;
+            transition: transform 0.2s ease, border-color 0.2s ease;
         }
 
         .photo:hover {
@@ -110,8 +109,8 @@
         }
 
         .status {
-            text-align: center;
             padding: 25px 15px;
+            text-align: center;
             color: #eee;
             font-size: 17px;
         }
@@ -119,23 +118,21 @@
         footer {
             margin-top: 30px;
             padding: 22px 15px;
-            text-align: center;
             background: #000;
+            text-align: center;
             color: #ccc;
         }
-
-        /* Okno pro zvětšenou fotografii */
 
         dialog {
             width: min(95vw, 1200px);
             max-width: 1200px;
             max-height: 95vh;
             padding: 0;
+            overflow: hidden;
             border: 1px solid #f5c400;
             border-radius: 10px;
             background: #080808;
             color: #fff;
-            overflow: hidden;
         }
 
         dialog::backdrop {
@@ -162,9 +159,9 @@
         .lightbox-button {
             position: absolute;
             z-index: 2;
+            padding: 10px 15px;
             border: none;
             border-radius: 5px;
-            padding: 10px 15px;
             background: rgba(0, 0, 0, 0.75);
             color: #fff;
             font-size: 28px;
@@ -183,20 +180,20 @@
         }
 
         .prev-button {
-            left: 10px;
             top: 50%;
+            left: 10px;
             transform: translateY(-50%);
         }
 
         .next-button {
-            right: 10px;
             top: 50%;
+            right: 10px;
             transform: translateY(-50%);
         }
 
         .photo-counter {
-            text-align: center;
             padding: 10px;
+            text-align: center;
             color: #eee;
             font-size: 14px;
         }
@@ -251,19 +248,13 @@
     </a>
 
     <nav>
-        <a href="index.html">Domů</a>
         <a href="index.html#služby">Služby</a>
-        <a href="galerie.html">Galerie</a>
         <a href="index.html#kontakt">Kontakt</a>
     </nav>
 </header>
 
 <main>
-    <h1>Fotogalerie</h1>
-
-    <p class="intro">
-        Ukázky naší práce a realizovaných projektů.
-    </p>
+    <h1>Fotogalerie realizovaných projektů</h1>
 
     <div class="gallery" id="gallery"></div>
 
@@ -320,30 +311,47 @@
     document.getElementById("year").textContent =
         new Date().getFullYear();
 
-    // Načtení seznamu fotografií ze souboru fotky.json
     async function loadPhotos() {
         try {
-            const response = await fetch("./fotky.json");
+            const apiUrl =
+                "https://api.github.com/repos/Tomas2007277/hnidy-str-nky/contents/fotky1?ref=main";
+
+            const response = await fetch(apiUrl);
 
             if (!response.ok) {
-                throw new Error("Nepodařilo se načíst soubor fotky.json");
+                throw new Error(
+                    "GitHub API vrátilo chybu: " + response.status
+                );
             }
 
-            const filenames = await response.json();
+            const files = await response.json();
 
-            if (!Array.isArray(filenames)) {
-                throw new Error("Soubor fotky.json nemá správný formát");
-            }
-
-            photos = filenames
-                .filter(name =>
-                    typeof name === "string" &&
-                    /\.(jpe?g|png|webp|avif|gif)$/i.test(name)
+            photos = files
+                .filter(file =>
+                    file.type === "file" &&
+                    /\.(jpe?g|png|webp|avif|gif)$/i.test(file.name)
                 )
-                .map(name => "./fotky1/" + encodeURIComponent(name));
+                .sort((a, b) =>
+                    a.name.localeCompare(
+                        b.name,
+                        undefined,
+                        {
+                            numeric: true,
+                            sensitivity: "base"
+                        }
+                    )
+                )
+                .map(file =>
+                    "./fotky1/" +
+                    file.name
+                        .split("/")
+                        .map(part => encodeURIComponent(part))
+                        .join("/")
+                );
 
             if (photos.length === 0) {
-                status.textContent = "Zatím zde nejsou žádné fotografie.";
+                status.textContent =
+                    "Ve složce fotky1 nebyly nalezeny žádné fotografie.";
                 return;
             }
 
@@ -375,29 +383,33 @@
                 gallery.appendChild(button);
             });
 
-            status.textContent = "Počet fotografií: " + photos.length;
-        } catch (error) {
-            console.error(error);
             status.textContent =
-                "Fotografie se nepodařilo načíst. Zkontroluj soubor fotky.json a složku fotky1.";
+                "Počet nalezených fotografií: " + photos.length;
+
+        } catch (error) {
+            console.error("Chyba galerie:", error);
+
+            status.textContent =
+                "Fotografie se nepodařilo načíst. " +
+                "Zkontroluj, zda existuje veřejná složka fotky1 " +
+                "v hlavní větvi main.";
         }
     }
 
     function openLightbox(index) {
         currentIndex = index;
         updateLightbox();
-
-        if (typeof lightbox.showModal === "function") {
-            lightbox.showModal();
-        }
+        lightbox.showModal();
     }
 
     function updateLightbox() {
         if (photos.length === 0) return;
 
         lightboxImage.src = photos[currentIndex];
+
         lightboxImage.alt =
-            "Fotografie " + (currentIndex + 1) + " z " + photos.length;
+            "Fotografie " + (currentIndex + 1) +
+            " z " + photos.length;
 
         photoCounter.textContent =
             (currentIndex + 1) + " / " + photos.length;
@@ -427,14 +439,12 @@
     prevButton.addEventListener("click", showPrevious);
     nextButton.addEventListener("click", showNext);
 
-    // Zavření kliknutím na tmavé pozadí okna
     lightbox.addEventListener("click", event => {
         if (event.target === lightbox) {
             lightbox.close();
         }
     });
 
-    // Ovládání klávesnicí
     document.addEventListener("keydown", event => {
         if (!lightbox.open) return;
 
